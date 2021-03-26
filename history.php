@@ -3,9 +3,8 @@
 ?>
 
 <title>History</title>
-
-<h2 class="text-center mb-5" id='dateTitle'><?php echo $_GET['inputDate'] ?> History</h2>
-<!-- <h2 class="text-center mb-5" id='dateTitle'><?php echo $_GET['inputDate'] ?></h2> <h2 class="text-center mb-5"> History</h2> -->
+<?php $inputDate1 = $_GET['inputDate']?>
+<h2 class="text-center mb-1" id='dateTitle'><?php echo $inputDate1 ?></h2> <h2 class="text-center mb-5"> History</h2>
 
 <?php
 try{

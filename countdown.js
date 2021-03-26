@@ -2,8 +2,10 @@ function countDown () {
     const datenow = document.querySelectorAll('#datenow');
     const timeexp = document.querySelectorAll('#timeexp');
     const tData = document.querySelectorAll('#tData');
+    const cButton = document.querySelectorAll('#cButton');
+    const tRow = document.querySelectorAll("#tRow");
 
-    function getMinutesSeconds (datenow, timeexp, tData) {
+    function getMinutesSeconds (datenow, timeexp, tData, cButton) {
         // Set the date we're counting down to
         const countDownDate = new Date(`${datenow.value} ${timeexp.value}`).getTime();
         console.log(datenow.value, timeexp.value, Date());
@@ -29,10 +31,38 @@ function countDown () {
                 clearInterval(x);
                 tData.innerHTML = 'EXPIRED';
             }
+
         }, 1000);
     }
     for (let i = 0; i < datenow.length; i++) {
         getMinutesSeconds (datenow[i], timeexp[i], tData[i]);
+        //Add highlight button
+        const colorButton = document.createElement('button');
+        colorButton.innerText = "Color";
+        cButton[i].append(colorButton);
+        // console.log(tRow[i].style.backgroundColor);
+        colorButton.addEventListener('click', function() {
+            if (tRow[i].style.backgroundColor === 'white') {
+                tRow[i].style.backgroundColor = 'green';
+                colorButton.innerText = "Green";
+                return;
+            }
+            if (tRow[i].style.backgroundColor === 'green') {
+                tRow[i].style.backgroundColor = 'blue';
+                colorButton.innerText = "Blue";
+                return;
+            }
+            if (tRow[i].style.backgroundColor === 'blue') {
+                tRow[i].style.backgroundColor = 'yellow';
+                colorButton.innerText = "Yellow";
+                return;
+            }
+            if (tRow[i].style.backgroundColor === 'yellow') {
+                tRow[i].style.backgroundColor = 'white';
+                colorButton.innerText = "Color";
+                return;
+            }
+        })
     }
 }
 

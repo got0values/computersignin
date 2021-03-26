@@ -52,6 +52,7 @@ if (isset($_POST["bcSubmit"])) {
         <th scope="col" class='text-center'>Count Down</th>
         <th scope="col" class='text-center'>Date</th>
         <th scope="col" class='text-center'>Notes</th>
+        <th scope="col" class='text-center'>Highlight</th>
     </tr>
   </thead>
   <tbody id="tBody">
@@ -79,23 +80,29 @@ if (isset($_POST["bcSubmit"])) {
         $curDateStats = $pdo->query($getCurDateStats);
         $i = 1;
         foreach ($curDateStats as $cdsRow) {
-            echo "<tr id='tRow'>";
+            $flag = 0;
+            // echo "<tr id='tRow' style='background-color: white'>";
             //get banlist and compare to signed in person
             $fromBanListStatement = "SELECT * FROM banlist;";
             $fromBanList = $pdo->query($fromBanListStatement);
             foreach ($fromBanList as $bannedPerson) {
                 if ($cdsRow[1] == $bannedPerson[1]) {
                     echo "<tr id='tRow' style='background-color: red'>";
-                }
+                    $flag++;
+                }            
             }
             //get showid list and compare to signed in person
             $fromShowIDStatement = "SELECT * FROM showid;";
             $fromShowID = $pdo->query($fromShowIDStatement);
             foreach ($fromShowID as $showIDPerson) {
                 if ($cdsRow[1] == $showIDPerson[1]) {
-                    echo "<tr id='tRow' style='background-color: yellow'>";
+                    echo "<tr id='tRow' style='background-color: purple'>";
+                    $flag++;
                 }
             }
+            if ($flag == 0) {
+                echo "<tr id='tRow' style='background-color: white'>";
+            } 
             echo    "<td class='text-center'>" . $i++ . "</td>";
             echo    "<td>"; 
             echo    "<form action='index.php' method='post'>";
@@ -118,6 +125,7 @@ if (isset($_POST["bcSubmit"])) {
             echo        "<input type='hidden' name='transIdThree' value='$cdsRow[0]'>";
             echo    "</form>";             
             echo    "</td>";
+            echo    "<td class='text-center' id='cButton'>" . "</td>";            
             echo "</tr>";
         }
     ?>
