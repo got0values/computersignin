@@ -80,8 +80,12 @@ if (isset($_POST["bcSubmit"])) {
         $curDateStats = $pdo->query($getCurDateStats);
         $i = 1;
         foreach ($curDateStats as $cdsRow) {
+            //white row background counter flag
             $flag = 0;
-            // echo "<tr id='tRow' style='background-color: white'>";
+            //red row background counter flag
+            $redFlag = 0;
+            //purple row background counter flag
+            $purpleFlag = 0;
             //get banlist and compare to signed in person
             $fromBanListStatement = "SELECT * FROM banlist;";
             $fromBanList = $pdo->query($fromBanListStatement);
@@ -89,6 +93,7 @@ if (isset($_POST["bcSubmit"])) {
                 if ($cdsRow[1] == $bannedPerson[1]) {
                     echo "<tr id='tRow' style='background-color: red'>";
                     $flag++;
+                    $redFlag++;
                 }            
             }
             //get showid list and compare to signed in person
@@ -98,11 +103,26 @@ if (isset($_POST["bcSubmit"])) {
                 if ($cdsRow[1] == $showIDPerson[1]) {
                     echo "<tr id='tRow' style='background-color: purple'>";
                     $flag++;
+                    $purpleFlag++;
                 }
             }
+            //get names of people signed in today and compare to signed in person
+            $getTodNames = "SELECT name FROM signin WHERE datenow = DATE('now', 'localtime');";
+            $todNames = $pdo->query($getTodNames);
+            $orangeFlag = 0;
+            foreach ($todNames as $todName) {    
+                if (strcmp($cdsRow[1], $todName[0]) == 0) {
+                    $orangeFlag++;
+                }
+            }
+            if ($orangeFlag > 1 && $redFlag == 0 && $purpleFlag == 0) {
+                echo "<tr id='tRow' style='background-color: orange'>";
+                $flag++;
+            }
+            //if the white background color flag hasn't been added to, make the row have a white bg
             if ($flag == 0) {
                 echo "<tr id='tRow' style='background-color: white'>";
-            } 
+            }
             echo    "<td class='text-center'>" . $i++ . "</td>";
             echo    "<td>"; 
             echo    "<form action='index.php' method='post'>";
