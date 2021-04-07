@@ -85,7 +85,7 @@ if (isset($_POST["bcSubmit"])) {
             //red row background counter flag
             $redFlag = 0;
             //purple row background counter flag
-            $purpleFlag = 0;
+            $purpleFlag = 0;            
             //get banlist and compare to signed in person
             $fromBanListStatement = "SELECT * FROM banlist;";
             $fromBanList = $pdo->query($fromBanListStatement);
@@ -99,11 +99,17 @@ if (isset($_POST["bcSubmit"])) {
             //get showid list and compare to signed in person
             $fromShowIDStatement = "SELECT * FROM showid;";
             $fromShowID = $pdo->query($fromShowIDStatement);
-            foreach ($fromShowID as $showIDPerson) {
+            foreach ($fromShowID as $showIDPerson) {       
                 if ($cdsRow[1] == $showIDPerson[1]) {
-                    echo "<tr id='tRow' style='background-color: purple'>";
-                    $flag++;
-                    $purpleFlag++;
+                    //if this person is a banned person, skip because banned takes priority
+                    if($redFlag == 1) {
+                        echo "";
+                    }                                            
+                    else {
+                        echo "<tr id='tRow' style='background-color: purple'>";
+                        $flag++;
+                        $purpleFlag++;
+                    }
                 }
             }
             //get names of people signed in today and compare to signed in person

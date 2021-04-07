@@ -37,6 +37,7 @@ if (isset($_POST["bcSubmit"])) {
         <th scope="col" class='text-center'>#</th>
         <th scope="col" class='text-center'>Delete</th>
         <th scope="col" class='text-center'>Name</th>
+        <th scope="col" class='text-center'>Notes</th>
     </tr>
   </thead>
   <tbody id="tBody">
@@ -49,7 +50,14 @@ if(isset($_POST["deleteTwo"])) {
     $transidTwo = $_POST['deleteTrans'];               
     $deleteSigninQuery = "DELETE FROM banlist WHERE id = '$transidTwo';";
     $pdo->exec($deleteSigninQuery);
-}   
+}
+// add notes query and execution
+if (isset($_POST['notesButton'])) {
+    $notesText = $_POST['notesText'];
+    $transIdThree = $_POST['transIdThree'];
+    $addNotesQuery = "UPDATE banlist SET notes = '$notesText' WHERE id = '$transIdThree'";
+    $pdo->exec($addNotesQuery);
+}
 // get banlist names from db
 $fromBanListStatement = "SELECT * FROM banlist;";
 $fromBanList = $pdo->query($fromBanListStatement);
@@ -64,6 +72,13 @@ $i = 1;
         echo    "</form>";
         echo    "</td>";
         echo    "<td class='text-center'>" . $bannedPerson[1] . "</td>";
+        echo    "<td class='text-center'>";
+        echo    "<form action='banlist.php' method='post'>";
+        echo        "<input type='text' name='notesText' value='$bannedPerson[2]'>";
+        echo        "<input type='submit' name='notesButton' value='Save'>";
+        echo        "<input type='hidden' name='transIdThree' value='$bannedPerson[0]'>";
+        echo    "</form>";             
+        echo    "</td>";
         echo "</tr>";
     }
 ?>
