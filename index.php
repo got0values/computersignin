@@ -1,164 +1,93 @@
 <?php
-    include_once 'header.php';
-    
-    ini_set('display_errors',1);
-    error_reporting(-1);
+include_once 'Request.php';
+include_once 'Router.php';
+$router = new Router(new Request);
 
-?>
+$router->get('/', function() {
+        include_once './model/listtoday.php';
+        include_once './views/index2.php';
+    });
 
-<title>Computer Sign In</title>
+$router->get('/banlist', function() {
+        include_once './model/getbanlist.php';
+        include_once './views/banlist.php';
+    });
 
-<script type="text/javascript" src="countdown.js"></script>
+$router->get('/showid', function() {
+        include_once './model/showidmodel.php';
+        include_once './views/showid.php';
+    });
 
-<h2 class="text-center mb-5">Sign In</h2>
+$router->get('/history', function($request) {
+        include_once './model/gethistory.php';
+        include_once './views/history.php';
+    });
 
-<?php
-if (isset($_POST["bcSubmit"])) {
-    try{
-        // connect to sqlitedb
-        $pdo = new PDO('sqlite:compsignin.db');
+// insert transaction into db
+$router->post('/submitsignin', function($request) {
+        include_once './model/submitsignin.php';
+        include_once './model/listtoday.php';
+        include_once './views/index2.php';
+    });
 
-        // obtain name
-        $name = $_POST['nameInput'];
-        $computer = $_POST['compInput'];
-        $nowTime = TIME('now', 'localtime');        
-        // insert transaction into db
-        $signInStatement = "INSERT into signin (name, comp, timenow, datenow, timeexp, dateexp) VALUES ('$name', '$computer', TIME('now', 'localtime'), DATE('now', 'localtime'), TIME(TIME('now', 'localtime'), '+60 minutes'), DATE('now', 'localtime'));";
-        $pdo->query($signInStatement);
+// delete query and execution
+$router->post('/deletesignin', function($request) {
+        include_once './model/deletesignin.php';
+        include_once './model/listtoday.php';
+        include_once './views/index2.php';
+    });
 
-    }catch (PDOException $e) {
-        echo $e -> getMessage();
-    }
-}
-?>
+// add notes query and execution
+$router->post('/addnotes', function($request) {
+        include_once './model/addnotes.php';
+        include_once './model/listtoday.php';
+        include_once './views/index2.php';
+    });
 
-<div class="container input-group mb-3">
-    <form action="index.php" method="post">
-        <input type="text" name="nameInput" placeholder="Name" id="nameInput"  autocomplete="off" autofocus>
-        <input type="text" name="compInput" placeholder="Computer" id="compInput">
-        <input class="btn btn-outline-secondary" name="bcSubmit" value="Submit" type="submit">
-    </form>
-</div> 
+// submit banlist patron
+$router->post('/submitbanlist', function($request) {
+        include_once './model/submitbanlist.php';
+        include_once './model/getbanlist.php';
+        include_once './views/banlist.php';
+    });
 
-<table class="table table-hover container">
-  <thead>
-    <tr>
-        <th scope="col" class='text-center'>#</th>
-        <th scope="col" class='text-center'>Delete</th>
-        <th scope="col" class='text-center'>Name</th>
-        <th scope="col" class='text-center'>Computer</th>
-        <th scope="col" class='text-center'>Time In</th>
-        <th scope="col" class='text-center'>Time Expired</th>
-        <th scope="col" class='text-center'>Count Down</th>
-        <th scope="col" class='text-center'>Date</th>
-        <th scope="col" class='text-center'>Notes</th>
-        <th scope="col" class='text-center'>Highlight</th>
-    </tr>
-  </thead>
-  <tbody id="tBody">
-    <?php
-        $pdo = new PDO('sqlite:compsignin.db');
-        // $pdo->query($cardQuery);
+// delete banlist patron
+$router->post('/deletebanlist', function($request) {
+        include_once './model/deletebanlist.php';
+        include_once './model/getbanlist.php';
+        include_once './views/banlist.php';
+    });
 
-        // delete query and execution
-        if(isset($_POST["deleteTwo"])) {
-            $transidTwo = $_POST['deleteTrans'];               
-            $deleteSigninQuery = "DELETE FROM signin WHERE id = '$transidTwo'";
-            $pdo->query($deleteSigninQuery);
-        }
+// notes banlist patron
+$router->post('/notesbanlist', function($request) {
+        include_once './model/notesbanlist.php';
+        include_once './model/getbanlist.php';
+        include_once './views/banlist.php';
+    });
 
-        // add notes query and execution
-        if (isset($_POST['notesButton'])) {
-            $notesText = $_POST['notesText'];
-            $transIdThree = $_POST['transIdThree'];
-            $addNotesQuery = "UPDATE signin SET notes = '$notesText' WHERE id = '$transIdThree'";
-            $pdo->exec($addNotesQuery);
-        }
-        
-        // list today's patrons query
-        $getCurDateStats = "SELECT * FROM signin WHERE datenow = DATE('now', 'localtime');";
-        $curDateStats = $pdo->query($getCurDateStats);
-        $i = 1;
-        foreach ($curDateStats as $cdsRow) {
-            //white row background counter flag
-            $flag = 0;
-            //red row background counter flag
-            $redFlag = 0;
-            //purple row background counter flag
-            $purpleFlag = 0;            
-            //get banlist and compare to signed in person
-            $fromBanListStatement = "SELECT * FROM banlist;";
-            $fromBanList = $pdo->query($fromBanListStatement);
-            foreach ($fromBanList as $bannedPerson) {
-                if ($cdsRow[1] == $bannedPerson[1]) {
-                    echo "<tr id='tRow' style='background-color: red'>";
-                    $flag++;
-                    $redFlag++;
-                }            
-            }
-            //get showid list and compare to signed in person
-            $fromShowIDStatement = "SELECT * FROM showid;";
-            $fromShowID = $pdo->query($fromShowIDStatement);
-            foreach ($fromShowID as $showIDPerson) {       
-                if ($cdsRow[1] == $showIDPerson[1]) {
-                    //if this person is a banned person, skip because banned takes priority
-                    if($redFlag == 1) {
-                        echo "";
-                    }                                            
-                    else {
-                        echo "<tr id='tRow' style='background-color: purple'>";
-                        $flag++;
-                        $purpleFlag++;
-                    }
-                }
-            }
-            //get names of people signed in today and compare to signed in person
-            $getTodNames = "SELECT name FROM signin WHERE datenow = DATE('now', 'localtime');";
-            $todNames = $pdo->query($getTodNames);
-            $orangeFlag = 0;
-            foreach ($todNames as $todName) {    
-                if (strcmp($cdsRow[1], $todName[0]) == 0) {
-                    $orangeFlag++;
-                }
-            }
-            if ($orangeFlag > 1 && $redFlag == 0 && $purpleFlag == 0) {
-                echo "<tr id='tRow' style='background-color: orange'>";
-                $flag++;
-            }
-            //if the white background color flag hasn't been added to, make the row have a white bg
-            if ($flag == 0) {
-                echo "<tr id='tRow' style='background-color: white'>";
-            }
-            echo    "<td class='text-center'>" . $i++ . "</td>";
-            echo    "<td>"; 
-            echo    "<form action='index.php' method='post'>";
-            echo        "<input type='submit' name='deleteTwo' value='Delete' class='btn btn-danger btn-sm' value='Delete'>";
-            echo        "<input type='hidden' name='deleteTrans' value='$cdsRow[0]'>";
-            echo    "</form>";
-            echo    "</td>";
-            echo    "<td class='text-center'>" . $cdsRow[1] . "</td>";
-            echo    "<td class='text-center'>" . $cdsRow[2] . "</td>";
-            echo    "<td class='text-center'>" . $cdsRow[3] . "</td>";
-            echo    "<td class='text-center'>" . $cdsRow[5] . "</td>";
-            echo    "<td class='text-center' id='tData'>" . "</td>";
-            echo    "<td class='text-center'>" . $cdsRow[4] . "</td>";
-            echo    "<input type='hidden' id='timeexp' value='$cdsRow[5]'>";
-            echo    "<input type='hidden' id='datenow' value='$cdsRow[4]'>";
-            echo    "<td class='text-center'>";
-            echo    "<form action='index.php' method='post'>";
-            echo        "<input type='text' name='notesText' value='$cdsRow[7]'>";
-            echo        "<input type='submit' name='notesButton' value='Save'>";
-            echo        "<input type='hidden' name='transIdThree' value='$cdsRow[0]'>";
-            echo    "</form>";             
-            echo    "</td>";
-            echo    "<td class='text-center' id='cButton'>" . "</td>";            
-            echo "</tr>";
-        }
-    ?>
-  </tbody>
-</table>
-<script type="text/javascript">countDown()</script>
+// submit showid patron
+$router->post('/submitshowid', function($request) {
+        include_once './model/submitshowid.php';
+        include_once './model/showidmodel.php';
+        include_once './views/showid.php';
+    });
 
-<?php
-    include_once 'footer.php';
-?>
+// delete showid patron
+$router->post('/deleteshowid', function($request) {
+        include_once './model/deleteshowid.php';
+        include_once './model/showidmodel.php';
+        include_once './views/showid.php';
+    });
+
+// delete history row
+$router->post('/deletehistory', function($request) {
+    include_once './model/deletehistory.php';
+    include_once './model/gethistory.php';
+    include_once './views/history.php';
+});
+
+//get history for date
+$router->post('/gethistory', function($request) {
+    include_once './model/gethistory.php';
+    include_once './views/history.php';
+});
